@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sopan Remix | Official Music Team & Artist Management</title>
+    <meta name="description" content="Official home of Sopan Remix Team. Premium production, top-tier artists, and high-fidelity sound engineering.">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Outfit:wght@300;400;500;700;800;900&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <link rel="stylesheet" href="style.css">
+
+    <style>
+        /* CSS Tambahan untuk Fitur Login & Join Artist */
+        .auth-container {
+            padding: 30px;
+        }
+        .auth-tabs {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 30px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            padding-bottom: 10px;
+        }
+        .tab-btn {
+            background: none;
+            border: none;
+            color: #888;
+            font-family: 'Outfit', sans-serif;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            padding: 8px 16px;
+            transition: all 0.3s ease;
+            border-radius: 8px;
+        }
+        .tab-btn.active {
+            color: #fff;
+            background: rgba(255,255,255,0.05);
+            box-shadow: 0 0 15px rgba(255,255,255,0.1);
+        }
+        .auth-form {
+            display: none;
+            flex-direction: column;
+            gap: 20px;
+        }
+        .auth-form.active {
+            display: flex;
+            animation: fadeIn 0.4s ease;
+        }
+        .file-upload-box {
+            border: 2px dashed rgba(255,255,255,0.1);
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        .file-upload-box:hover {
+            border-color: var(--accent, #fff);
+            background: rgba(255,255,255,0.02);
+        }
+        .file-upload-box i {
+            display: block;
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+        }
+        .custom-alert {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: #1a1a1a;
+            color: #fff;
+            padding: 15px 25px;
+            border-radius: 12px;
+            border-left: 4px solid #00ff88;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            display: none;
+            z-index: 10000;
+            font-family: 'Inter', sans-serif;
+            animation: slideUp 0.4s ease;
+        }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body class="loading">
+
+    <div class="cursor-dot"></div>
+    <div class="cursor-outline"></div>
+
+    <div id="custom-alert" class="custom-alert">
+        <i class="fa-solid fa-circle-check" style="color: #00ff88; margin-right: 10px;"></i>
+        Data sedang di proses admin
+    </div>
+
+    <div class="loader-wrapper" id="loader">
+        <div class="loader-content">
+            <svg class="loader-logo" viewBox="0 0 100 100">
+                <circle class="loader-circle" cx="50" cy="50" r="45"></circle>
+                <text x="50" y="56" text-anchor="middle" font-family="Outfit" font-weight="900" font-size="28" fill="currentColor">S</text>
+            </svg>
+            <div class="loader-progress-bar">
+                <div class="loader-progress" id="loader-progress"></div>
+            </div>
+            <div class="loader-percentage" id="loader-percentage">0%</div>
+        </div>
+    </div>
+
+    <header class="navbar" id="navbar">
+        <div class="nav-container">
+            <a href="#home" class="logo hover-target">
+                <svg viewBox="0 0 40 40" width="40" height="40" class="logo-svg">
+                    <path d="M5,20 Q10,5 20,20 T35,20" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
+                    <path d="M5,25 Q10,10 20,25 T35,25" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" opacity="0.5"/>
+                </svg>
+                <span class="logo-text">Sopan.<span class="text-accent"></span></span>
+            </a>
+            
+            <nav class="nav-links">
+                <a href="#home" class="nav-link active hover-target">Home</a>
+                <a href="#about" class="nav-link hover-target">Top Artists</a>
+                <a href="#skills" class="nav-link hover-target">Team Tech</a>
+                <a href="#services" class="nav-link hover-target">Services</a>
+                <a href="#projects" class="nav-link hover-target">Team Albums</a>
+                <a href="#experience" class="nav-link hover-target">Label Credits</a>
+                <a href="#blog" class="nav-link hover-target">Team News</a>
+                <a href="#contact" class="nav-link hover-target">Join the Team</a>
+            </nav>
+
+<div class="nav-actions">
+    <button class="theme-switch hover-target" id="theme-switch" aria-label="Toggle Theme">
+        <i class="fa-solid fa-moon dark-icon"></i>
+        <i class="fa-solid fa-sun light-icon"></i>
+    </button>
+
+    <div id="user-profile-nav" class="user-nav-container" style="display: none;">
+        <img id="user-nav-img" src="" alt="Profile" class="nav-avatar hover-target">
+        <div class="user-dropdown">
+            <span id="user-nav-name">Artist Name</span>
+            <hr>
+            <button onclick="handleLogout()" class="logout-btn"><i class="fa-solid fa-right-from-bracket"></i> Logout</button>
+        </div>
+    </div>
+
+    <div class="hamburger hover-target" id="hamburger">
+        <span></span>
+        <span></span>
+        <span></span>
+    </div>
+</div>
+
+    </header>
+
+    <main>
+        <section id="home" class="hero">
+            <div class="hero-bg">
+                <div class="blob blob-1"></div>
+                <div class="blob blob-2"></div>
+                <div class="particles" id="particles"></div>
+            </div>
+
+            <div class="container hero-container">
+                <div class="hero-content">
+                    <span class="greeting reveal-up">Defining the Sound of Tomorrow</span>
+                    <h1 class="hero-title reveal-up" style="transition-delay: 0.1s;">
+                        Sopan Remix <br> <span class="text-gradient">Official Team.</span>
+                    </h1>
+                    <h2 class="hero-subtitle reveal-up" style="transition-delay: 0.2s;">
+                        We are a <span class="typing-text" id="typing-text">Music Collective</span><span class="typing-cursor">|</span>
+                    </h2>
+                    <p class="hero-desc reveal-up" style="transition-delay: 0.3s;">
+                        Leading the scene through innovation. A powerhouse of world-class producers, engineers, and remixers specialized in Phonk, Electronic, and Hipdut.
+                    </p>
+                    <div class="hero-ctas reveal-up" style="transition-delay: 0.4s;">
+                        <a href="#projects" class="btn btn-primary hover-target">
+                            Listen to Albums <i class="fa-solid fa-play"></i>
+                        </a>
+                        <a href="#contact" class="btn btn-outline hover-target">
+                            Join the Team
+                        </a>
+                    </div>
+                    <div class="hero-socials reveal-up" style="transition-delay: 0.5s;">
+                    <a href="#" class="social-icon hover-target"><i class="fa-brands fa-tiktok"></i></a>
+                        <a href="#" class="social-icon hover-target"><i class="fa-brands fa-youtube"></i></a>
+                        <a href="#" class="social-icon hover-target"><i class="fa-brands fa-instagram"></i></a>
+                    </div>
+                </div>
+
+                <div class="hero-visual reveal-scale" style="transition-delay: 0.3s;">
+                    <div class="profile-card">
+                        <div class="profile-img-container" id="artist-display-box">
+                            <i class="fa-solid fa-users-gear profile-placeholder"></i>
+                        </div>
+                        
+                        <div style="text-align: center; margin-top: 10px; font-family: 'Outfit'; font-weight: 700; color: #fff;" id="artist-name-display">
+                            Sopan Artist
+                        </div>
+
+                        <div class="floating-badge badge-1">
+                            <i class="fa-solid fa-compact-disc"></i> Top Artists
+                        </div>
+                        <div class="floating-badge badge-2">
+                            <i class="fa-solid fa-wave-square"></i> Production Label
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="scroll-indicator reveal-fade" style="transition-delay: 1s;">
+                <a href="#about" class="hover-target">
+                    <div class="mouse"></div>
+                    <span>Discover More</span>
+                </a>
+            </div>
+        </section>
+
+        <section id="about" class="about section">
+            <div class="container">
+                <div class="section-header reveal-up">
+                    <span class="section-subtitle">Our Artists</span>
+                    <h2 class="section-title">The Top Artists</h2>
+                </div>
+
+                <div class="about-grid">
+                    <div class="about-image-wrapper reveal-right">
+                        <div class="about-frame">
+                            <div class="about-photo-placeholder">
+                                <i class="fa-solid fa-microphone-lines"></i>
+                            </div>
+                        </div>
+<div class="experience-circle">
+    <span class="circle-num" id="artist-count">0</span>
+    <span class="circle-text">Artist<br>Active</span>
+</div>
+
+                    </div>
+
+                    <div class="about-content reveal-left">
+                        <h3 class="about-heading">Unity in Sound. Power in Remix.</h3>
+                        <p class="about-text">
+                            Sopan Remix is an elite music team and artist management. Our studio serves as a creative hub where top-tier talent collaborates to set new standards in digital and analog sound production.
+                        </p>
+                        <p class="about-text">
+                            We don't just make music; we build auditory experiences. Every project is handled by our specialized team members to ensure professional clarity and maximum energy on every sound system.
+                        </p>
+
+                        <div class="stats-grid">
+                            <div class="stat-box hover-target">
+                                <h4 class="stat-num"><span class="counter" data-target="500">0</span>+</h4>
+                                <p class="stat-label">Album Releases</p>
+                            </div>
+                            <div class="stat-box hover-target">
+                                <h4 class="stat-num"><span class="counter" data-target="25">0</span>M+</h4>
+                                <p class="stat-label">Label Streams</p>
+                            </div>
+                            <div class="stat-box hover-target">
+                                <h4 class="stat-num"><span class="counter" data-target="15">0</span>+</h4>
+                                <p class="stat-label">Expert Members</p>
+                            </div>
+                        </div>
+
+                        <a href="#" class="btn btn-outline hover-target mt-4">
+                            Our Full Roster <i class="fa-solid fa-users"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
+<section id="trending-tiktok" class="section bg-alt" style="padding-top: 0;">
+    <div class="container">
+        <div class="section-header reveal-up">
+            <span class="section-subtitle">Trending on Feed</span>
+            <h2 class="section-title">Team TikTok Hits</h2>
+        </div>
+
+        <div class="tiktok-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(325px, 1fr)); gap: 25px; justify-content: center;">
+            
+            <div class="tiktok-card glass-card hover-target" style="border-radius: 15px; overflow: hidden; padding: 10px; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.1);">
+                <blockquote class="tiktok-embed" cite="https://www.tiktok.com/@team.sopan.remix/video/7578519417223417106" data-video-id="7578519417223417106" style="margin: 0;"> 
+                    <section></section> 
+                </blockquote>
+                <div style="padding: 15px 5px 5px;">
+                    <a href="https://www.tiktok.com/@team.sopan.remix/video/7578519417223417106" target="_blank" class="btn btn-primary" style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 10px; font-size: 0.9rem;">
+                        Watch Now <i class="fa-brands fa-tiktok"></i>
+                    </a>
+                </div>
+            </div>
+
+            <div class="tiktok-card glass-card hover-target" style="border-radius: 15px; overflow: hidden; padding: 10px; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.1);">
+                <blockquote class="tiktok-embed" cite="https://www.tiktok.com/@team.sopan.remix/video/7590748567707438344" data-video-id="7590748567707438344" style="margin: 0;"> 
+                    <section></section> 
+                </blockquote>
+                <div style="padding: 15px 5px 5px;">
+                    <a href="https://www.tiktok.com/@team.sopan.remix/video/7590748567707438344" target="_blank" class="btn btn-primary" style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 10px; font-size: 0.9rem;">
+                        Watch Now <i class="fa-brands fa-tiktok"></i>
+                    </a>
+                </div>
+            </div>
+
+            <div class="tiktok-card glass-card hover-target" style="border-radius: 15px; overflow: hidden; padding: 10px; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.1);">
+                <blockquote class="tiktok-embed" cite="https://www.tiktok.com/@team.sopan.remix/video/7549595473078701368" data-video-id="7549595473078701368" style="margin: 0;"> 
+                    <section></section> 
+                </blockquote>
+                <div style="padding: 15px 5px 5px;">
+                    <a href="https://www.tiktok.com/@team.sopan.remix/video/7549595473078701368" target="_blank" class="btn btn-primary" style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 10px; font-size: 0.9rem;">
+                        Watch Now <i class="fa-brands fa-tiktok"></i>
+                    </a>
+                </div>
+            </div>
+
+        </div>
+    </div>
+    <script async src="https://www.tiktok.com/embed.js"></script>
+</section>
+<section id="tools" class="skills section bg-alt">
+    <div class="container">
+        <div class="section-header text-center reveal-up">
+            <span class="section-subtitle">Our Secret Sauce</span>
+            <h2 class="section-title">Music Tools & Recommendation</h2>
+        </div>
+
+        <div class="skills-container">
+            <div class="skill-category reveal-up">
+                <h3 class="category-title"><i class="fa-solid fa-plug"></i> Essential VSTs</h3>
+                <div class="skill-list">
+                    <div class="skill-item hover-target">
+                        <div class="skill-info"><span class="skill-name">Serum (Xfer Records)</span></div>
+                        <p style="font-size: 0.8rem; opacity: 0.6;">Best for Lead & Bass Phonk.</p>
+                    </div>
+                    <div class="skill-item hover-target">
+                        <div class="skill-info"><span class="skill-name">FabFilter Pro-Q 3</span></div>
+                        <p style="font-size: 0.8rem; opacity: 0.6;">Surgical EQ for clean mixing.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="skill-category reveal-up" style="transition-delay: 0.1s;">
+                <h3 class="category-title"><i class="fa-solid fa-box-open"></i> Free Assets</h3>
+                <div class="glass-card" style="padding: 20px; text-align: center; border: 1px dashed var(--accent);">
+                    <i class="fa-solid fa-file-zipper" style="font-size: 2rem; margin-bottom: 10px; color: var(--accent);"></i>
+                    <h4 style="margin-bottom: 10px;">Sopan Essentials Vol. 1</h4>
+                    <p style="font-size: 0.8rem; opacity: 0.7; margin-bottom: 15px;">Kumpulan Kick, Clap, & Percussion khas Sopan Remix.</p>
+                    <a href="LINK_DOWNLOAD_DISINI" class="btn btn-primary btn-sm hover-target" style="width: 100%;">
+                        Download Pack (50MB) <i class="fa-solid fa-download"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section id="members" class="section">
+    <div class="container text-center">
+        <div class="section-header reveal-up">
+            <span class="section-subtitle">Behind the Sound</span>
+            <h2 class="section-title">The Sopan Roster</h2>
+        </div>
+        
+        <div id="member-list-grid" class="services-grid" style="margin-top: 40px;">
+            <p style="opacity: 0.5;">Memuat daftar member...</p>
+        </div>
+
+        <div class="reveal-up" style="margin-top: 40px;">
+            <p style="margin-bottom: 20px; opacity: 0.7;">Mau namamu ada di sini?</p>
+            <a href="#contact" class="btn btn-outline hover-target">Join the Team <i class="fa-solid fa-plus"></i></a>
+        </div>
+    </div>
+</section>
+
+
+        <section id="services" class="services section">
+            <div class="container">
+                <div class="section-header text-center reveal-up">
+                    <span class="section-subtitle">Solutions</span>
+                    <h2 class="section-title">Label Services</h2>
+                </div>
+
+                <div class="services-grid">
+                    <div class="service-card glass-card hover-target reveal-up">
+                        <div class="service-icon"><i class="fa-solid fa-music"></i></div>
+                        <h3 class="service-title">Full Team Production</h3>
+                        <p class="service-desc">Get a complete track produced by our top artists. We handle arrangement and beat-making with team-based quality control.</p>
+                    </div>
+                    <div class="service-card glass-card hover-target reveal-up" style="transition-delay: 0.1s;">
+                        <div class="service-icon"><i class="fa-solid fa-wave-square"></i></div>
+                        <h3 class="service-title">Mixing & Mastering</h3>
+                        <p class="service-desc">Transform your raw stems into industry-standard hits by our specialized engineering department.</p>
+                    </div>
+                    <div class="service-card glass-card hover-target reveal-up" style="transition-delay: 0.2s;">
+                        <div class="service-icon"><i class="fa-solid fa-ghost"></i></div>
+                        <h3 class="service-title">Official Remix Service</h3>
+                        <p class="service-desc">Collaborate with Sopan Remix for official remix duties. We bring our signature team energy to your records.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="projects" class="portfolio section bg-alt">
+            <div class="container">
+                <div class="section-header reveal-up">
+                    <span class="section-subtitle">The Catalog</span>
+                    <h2 class="section-title">Team Albums</h2>
+                </div>
+
+                <div class="portfolio-filters reveal-up">
+                    <button class="filter-btn active hover-target" data-filter="all">All Releases</button>
+                </div>
+
+<div class="portfolio-grid" id="projects-grid">
+    </div>
+</div>
+        </section>
+
+        <section id="experience" class="experience section">
+            <div class="container">
+                <div class="section-header text-center reveal-up">
+                    <span class="section-subtitle">Our Legacy</span>
+                    <h2 class="section-title">Label Credits</h2>
+                </div>
+
+                <div class="timeline">
+                    <div class="timeline-line"></div>
+                    
+                    <div class="timeline-item reveal-right">
+                        <div class="timeline-dot"></div>
+                        <div class="timeline-content glass-card hover-target">
+                            <span class="timeline-year">2024 - Present</span>
+                            <h3 class="timeline-title">Leading the Collective</h3>
+                            <span class="timeline-company">Sopan Remix Global</span>
+                            <p class="timeline-desc">Scaling our team into a full-scale digital label and sample pack developer for top-tier VSTs.</p>
+                        </div>
+                    </div>
+
+                    <div class="timeline-item reveal-left">
+                        <div class="timeline-dot"></div>
+                        <div class="timeline-content glass-card hover-target">
+                            <span class="timeline-year">2021 - 2024</span>
+                            <h3 class="timeline-title">The Origin Years</h3>
+                            <span class="timeline-company">Team Foundation</span>
+                            <p class="timeline-desc">United as a specialized team to mix and master 500+ tracks for international clients.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="blog" class="blog section">
+            <div class="container">
+                <div class="section-header reveal-up">
+                    <span class="section-subtitle">Knowledge</span>
+                    <h2 class="section-title">Team News & Insights</h2>
+                </div>
+
+                <div class="blog-grid">
+                    <article class="blog-card glass-card hover-target reveal-up">
+                        <div class="blog-img">
+                            <i class="fa-solid fa-headphones placeholder-img"></i>
+                        </div>
+                        <div class="blog-content">
+                            <span class="blog-date">March 2026</span>
+                            <h3 class="blog-title">Team Mastering Workflow</h3>
+                            <p class="blog-desc">How our engineers collaborate to achieve the perfect LUFS level.</p>
+                            <a href="#" class="blog-link">Read Team Guide <i class="fa-solid fa-arrow-right"></i></a>
+                        </div>
+                    </article>
+
+                    <article class="blog-card glass-card hover-target reveal-up" style="transition-delay: 0.1s;">
+                        <div class="blog-img">
+                            <i class="fa-solid fa-microphone placeholder-img"></i>
+                        </div>
+                        <div class="blog-content">
+                            <span class="blog-date">Feb 2026</span>
+                            <h3 class="blog-title">The Secret to Team Remixes</h3>
+                            <p class="blog-desc">Sharing stems and creative ideas within the Sopan Remix roster.</p>
+                            <a href="#" class="blog-link">Read Team Guide <i class="fa-solid fa-arrow-right"></i></a>
+                        </div>
+                    </article>
+                </div>
+            </div>
+        </section>
+
+        <section id="contact" class="contact section bg-alt">
+            <div class="container">
+                <div class="section-header text-center reveal-up">
+                    <span class="section-subtitle">Portal</span>
+                    <h2 class="section-title">Artist Access</h2>
+                </div>
+
+                <div class="contact-content">
+                    <div class="contact-info reveal-right">
+                        <h3 class="contact-heading">Join the Roster</h3>
+                        <p class="contact-desc">Silahkan masuk ke akun anda atau daftarkan diri untuk menjadi bagian dari Sopan Remix Team.</p>
+                        
+                        <div class="info-items">
+                            <div class="info-item hover-target">
+                                <div class="info-icon"><i class="fa-solid fa-shield-halved"></i></div>
+                                <div>
+                                    <span class="info-title">Secure Portal</span>
+                                    <span class="info-detail">Management Verified</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="contact-form-wrapper reveal-left">
+<div class="glass-card auth-container">
+    <div class="auth-tabs">
+        <button class="tab-btn active hover-target" id="tab-login" onclick="toggleAuth('login')">Sign In</button>
+        <button class="tab-btn hover-target" id="tab-join" onclick="toggleAuth('join')">Join Artist</button>
+    </div>
+
+    <div id="login-form" class="auth-form active">
+        <div class="form-group">
+            <input type="email" id="email" required class="form-input" placeholder=" ">
+            <label for="email" class="form-label">Email Address</label>
+        </div>
+        <div class="form-group">
+            <input type="password" id="password" required class="form-input" placeholder=" ">
+            <label for="password" class="form-label">Password</label>
+        </div>
+    </div>
+
+    <div id="join-form" class="auth-form">
+        
+        <div id="step1" class="auth-form-step active">
+            <div class="form-group">
+                <input type="text" id="regName" class="form-input" placeholder=" ">
+                <label class="form-label">Nama Artist (Contoh: RIZ)</label>
+            </div>
+            <div class="form-group">
+                <div class="file-upload-box hover-target" onclick="document.getElementById('regAvatar').click()">
+                    <i class="fa-solid fa-camera"></i>
+                    <span id="avatar-status">Upload Foto Profil (1:1)</span>
+                    <input type="file" id="regAvatar" accept="image/*" style="display: none;" onchange="document.getElementById('avatar-status').innerText = 'Foto Terpilih!'">
+                </div>
+            </div>
+        </div>
+
+        <div id="step2" class="auth-form-step">
+            <div class="form-group">
+                <input type="email" id="regEmailAktif" class="form-input" placeholder=" ">
+                <label class="form-label">Email Aktif (Pribadi)</label>
+            </div>
+            <div class="form-group">
+                <div class="file-upload-box hover-target" onclick="document.getElementById('regAudio').click()">
+                    <i class="fa-solid fa-music"></i>
+                    <span id="audio-status">Upload Audio Demo (MP3)</span>
+                    <input type="file" id="regAudio" accept="audio/mpeg" style="display: none;" onchange="document.getElementById('audio-status').innerText = 'Audio Siap!'">
+                </div>
+            </div>
+        </div>
+
+        <div id="step3" class="auth-form-step">
+            <div id="previewData" class="preview-box">
+                </div>
+            <div class="alert-info-mini" style="margin-top: 15px; font-size: 0.7rem; opacity: 0.6; color: #00ff88; line-height: 1.4;">
+                <i class="fa-solid fa-circle-info"></i> Harap screenshot Email & Password System di atas untuk login ke portal artist nanti.
+            </div>
+        </div>
+    </div>
+
+    <div class="auth-footer" style="margin-top: 25px; display: flex; gap: 10px;">
+        <button id="backBtn" class="btn btn-outline hover-target" style="display: none; flex: 1; padding: 12px;" onclick="moveStep(-1)">
+            <i class="fa-solid fa-arrow-left"></i>
+        </div>
+        <button id="mainBtn" class="btn btn-primary hover-target" style="flex: 2; width: 100%;" onclick="handleAuth()">
+            Masuk <i class="fa-solid fa-right-to-bracket"></i>
+        </button>
+    </div>
+</div>
+
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <div class="container footer-container">
+            <div class="footer-top">
+                <a href="#home" class="logo hover-target">
+                    <span class="logo-text">Sopan.<span class="text-accent">Remix</span></span>
+                </a>
+                <div class="footer-links">
+                    <a href="#about" class="hover-target">Artists</a>
+                    <a href="#projects" class="hover-target">Albums</a>
+                    <a href="#services" class="hover-target">Services</a>
+                </div>
+                <button id="back-to-top" class="back-to-top hover-target" aria-label="Back to top">
+                    <i class="fa-solid fa-arrow-up"></i>
+                </button>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 Sopan Remix Team Management. All rights reserved.</p>
+                <div class="footer-socials">
+                    <a href="#" class="hover-target"><i class="fa-brands fa-spotify"></i></a>
+                    <a href="#" class="hover-target"><i class="fa-brands fa-soundcloud"></i></a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Script untuk Toggle Form
+        function toggleAuth(type) {
+            const loginForm = document.getElementById('login-form');
+            const joinForm = document.getElementById('join-form');
+            const tabLogin = document.getElementById('tab-login');
+            const tabJoin = document.getElementById('tab-join');
+
+            if (type === 'login') {
+                loginForm.classList.add('active');
+                joinForm.classList.remove('active');
+                tabLogin.classList.add('active');
+                tabJoin.classList.remove('active');
+            } else {
+                loginForm.classList.remove('active');
+                joinForm.classList.add('active');
+                tabLogin.classList.remove('active');
+                tabJoin.classList.add('active');
+            }
+        }
+        // Catatan: Listener submit dihandle di script.js
+    </script>
+<script type="module" src="script.js"></script>
+
+</body>
+</html>
