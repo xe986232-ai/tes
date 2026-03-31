@@ -138,14 +138,19 @@
         <i class="fa-solid fa-sun light-icon"></i>
     </button>
 
-    <div id="user-profile-nav" class="user-nav-container" style="display: none;">
-        <img id="user-nav-img" src="" alt="Profile" class="nav-avatar hover-target">
-        <div class="user-dropdown">
-            <span id="user-nav-name">Artist Name</span>
-            <hr>
-            <button onclick="handleLogout()" class="logout-btn"><i class="fa-solid fa-right-from-bracket"></i> Logout</button>
-        </div>
+<div id="user-profile-nav" class="user-nav-container" style="display: none;">
+    <img id="user-nav-img" src="" alt="Profile" class="nav-avatar hover-target">
+    <div class="user-dropdown">
+        <span id="user-nav-name" style="font-weight: bold; display: block; margin-bottom: 5px;">Artist Name</span>
+        <hr>
+        <a href="dashboard-artist.html" class="dashboard-link hover-target" style="display: block; padding: 8px 0; color: var(--accent); text-decoration: none; font-size: 0.9rem;">
+            <i class="fa-solid fa-gauge-high"></i> Dashboard
+        </a>
+        <hr>
+        <button onclick="handleLogout()" class="logout-btn"><i class="fa-solid fa-right-from-bracket"></i> Logout</button>
     </div>
+</div>
+
 
     <div class="hamburger hover-target" id="hamburger">
         <span></span>
