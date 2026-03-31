@@ -473,7 +473,7 @@ const renderMemberList = () => {
                 if (user.username && user.profilePic) {
                     
                     const itemHTML = `
-                        <a href="artist.html?id=${id}" class="hover-target minimalist-item" 
+                        <a href="artist.html?id=${id}" class="hover-target minimalist-item roster-item" 
                            style="display: flex; flex-direction: column; align-items: center; text-decoration: none; width: auto; max-width: 90px; text-align: center;">
                             
                             <div class="member-photo-wrapper" 
@@ -504,6 +504,193 @@ const renderMemberList = () => {
                 target.addEventListener('mouseenter', () => document.body.classList.add('cursor-hover'));
                 target.addEventListener('mouseleave', () => document.body.classList.remove('cursor-hover'));
             });
+
+            // Initialize random roster animations
+            initRandomRosterAnimations();
         }
     });
+};
+
+/* ========== RANDOM ROSTER ANIMATION SYSTEM ========== */
+const initRandomRosterAnimations = () => {
+    const memberGrid = document.getElementById('member-list-grid');
+    const items = memberGrid.querySelectorAll('.roster-item');
+    
+    if (items.length === 0) return;
+
+    // Inject animation styles (if not already injected)
+    if (!document.getElementById('random-roster-animations')) {
+        const styleTag = document.createElement('style');
+        styleTag.id = 'random-roster-animations';
+        styleTag.textContent = `
+            /* ENTER ANIMATIONS */
+            @keyframes fadeSlideUp {
+                from { opacity: 0; transform: translateY(40px); }
+                to { opacity: 1; transform: translateY(0); }
+            }
+            @keyframes fadeSlideLeft {
+                from { opacity: 0; transform: translateX(-40px); }
+                to { opacity: 1; transform: translateX(0); }
+            }
+            @keyframes fadeZoomIn {
+                from { opacity: 0; transform: scale(0.8); }
+                to { opacity: 1; transform: scale(1); }
+            }
+            @keyframes rotateFadeIn {
+                from { opacity: 0; transform: rotate(-10deg) scale(0.9); }
+                to { opacity: 1; transform: rotate(0deg) scale(1); }
+            }
+            @keyframes scaleBlurIn {
+                from { opacity: 0; transform: scale(1.1); filter: blur(8px); }
+                to { opacity: 1; transform: scale(1); filter: blur(0px); }
+            }
+            @keyframes fadeSlideRight {
+                from { opacity: 0; transform: translateX(40px); }
+                to { opacity: 1; transform: translateX(0); }
+            }
+            @keyframes fadeSlideDown {
+                from { opacity: 0; transform: translateY(-40px); }
+                to { opacity: 1; transform: translateY(0); }
+            }
+
+            /* EXIT ANIMATIONS */
+            @keyframes exitFadeOut {
+                from { opacity: 1; transform: translateY(0); }
+                to { opacity: 0; transform: translateY(30px); }
+            }
+            @keyframes exitSlideDown {
+                from { opacity: 1; transform: translateY(0); }
+                to { opacity: 0; transform: translateY(40px); }
+            }
+            @keyframes exitZoomOut {
+                from { opacity: 1; transform: scale(1); }
+                to { opacity: 0; transform: scale(0.8); }
+            }
+            @keyframes exitRotateOut {
+                from { opacity: 1; transform: rotate(0deg) scale(1); }
+                to { opacity: 0; transform: rotate(10deg) scale(0.9); }
+            }
+            @keyframes exitSlideUp {
+                from { opacity: 1; transform: translateY(0); }
+                to { opacity: 0; transform: translateY(-40px); }
+            }
+
+            /* INITIAL STATE */
+            .roster-item {
+                opacity: 0;
+            }
+
+            /* ANIMATION CLASSES */
+            .roster-animate-1 { animation: fadeSlideUp 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
+            .roster-animate-2 { animation: fadeSlideLeft 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
+            .roster-animate-3 { animation: fadeZoomIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
+            .roster-animate-4 { animation: rotateFadeIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
+            .roster-animate-5 { animation: scaleBlurIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
+            .roster-animate-6 { animation: fadeSlideRight 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
+            .roster-animate-7 { animation: fadeSlideDown 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
+
+            .roster-exit-1 { animation: exitFadeOut 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards; }
+            .roster-exit-2 { animation: exitSlideDown 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards; }
+            .roster-exit-3 { animation: exitZoomOut 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards; }
+            .roster-exit-4 { animation: exitRotateOut 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards; }
+            .roster-exit-5 { animation: exitSlideUp 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards; }
+        `;
+        document.head.appendChild(styleTag);
+    }
+
+    // Animation variation pools
+    const enterAnimations = ['roster-animate-1', 'roster-animate-2', 'roster-animate-3', 'roster-animate-4', 'roster-animate-5', 'roster-animate-6', 'roster-animate-7'];
+    const exitAnimations = ['roster-exit-1', 'roster-exit-2', 'roster-exit-3', 'roster-exit-4', 'roster-exit-5'];
+
+    // Helper function to get random animation
+    const getRandomAnimation = (pool) => pool[Math.floor(Math.random() * pool.length)];
+
+    // Track visibility state
+    const itemStates = new Map();
+    const itemAnimations = new Map(); // Store selected animations for each item
+    items.forEach(item => {
+        itemStates.set(item, 'hidden');
+        itemAnimations.set(item, {
+            enter: getRandomAnimation(enterAnimations),
+            exit: getRandomAnimation(exitAnimations)
+        });
+    });
+
+    // IntersectionObserver configuration
+    const observerOptions = {
+        root: null,
+        rootMargin: '80px',
+        threshold: 0.25
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+            const item = entry.target;
+            const itemIndex = Array.from(items).indexOf(item);
+            const staggerDelay = itemIndex * 75; // 75ms stagger between items
+            const currentState = itemStates.get(item);
+
+            if (entry.isIntersecting) {
+                // Item entering viewport
+                if (currentState !== 'visible') {
+                    // Reset animation classes
+                    item.classList.remove(...exitAnimations);
+                    
+                    // Select random enter animation
+                    const enterAnim = getRandomAnimation(enterAnimations);
+                    itemAnimations.set(item, {
+                        ...itemAnimations.get(item),
+                        enter: enterAnim
+                    });
+
+                    // Apply animation
+                    item.classList.add(enterAnim);
+                    item.style.animationDelay = staggerDelay + 'ms';
+                    itemStates.set(item, 'visible');
+
+                    // Add hover effect (scale + glow)
+                    if (!item.hasAttribute('data-hover-setup')) {
+                        item.setAttribute('data-hover-setup', 'true');
+                        item.addEventListener('mouseenter', function() {
+                            this.style.transform = 'scale(1.15)';
+                            this.style.filter = 'drop-shadow(0 0 20px rgba(107, 33, 168, 0.8)) brightness(1.1)';
+                            this.style.transition = 'all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)';
+                        });
+                        item.addEventListener('mouseleave', function() {
+                            this.style.transform = 'scale(1)';
+                            this.style.filter = 'drop-shadow(0 0 0px)';
+                        });
+                    }
+                }
+            } else {
+                // Item leaving viewport
+                if (currentState !== 'hidden') {
+                    // Reset animation classes
+                    item.classList.remove(...enterAnimations);
+                    
+                    // Select random exit animation
+                    const exitAnim = getRandomAnimation(exitAnimations);
+                    itemAnimations.set(item, {
+                        ...itemAnimations.get(item),
+                        exit: exitAnim
+                    });
+
+                    // Apply animation
+                    item.classList.add(exitAnim);
+                    item.style.animationDelay = staggerDelay + 'ms';
+                    itemStates.set(item, 'hidden');
+                    
+                    // Reset hover transform
+                    item.style.transform = 'scale(1)';
+                    item.style.filter = 'none';
+                }
+            }
+        });
+    }, observerOptions);
+
+    // Observe all items
+    items.forEach(item => observer.observe(item));
+    
+    // Store observer reference for cleanup if needed
+    window.rosterAnimationObserver = observer;
 };
